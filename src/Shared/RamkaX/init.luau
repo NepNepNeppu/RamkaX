@@ -1,10 +1,12 @@
 local Library = script.Parent.Library
 local Resources = script.Parent.Resources
 
+local Chrono = require(script.Chrono)
+local Networking = require(script.Networking)
+
 local Promise = require(Library.Promise)
 
 -- RamkaX internal definitions
-local _registerCache = {}
 local _initCache = {
     started = false,
     completed = false,
@@ -13,16 +15,49 @@ local _initCache = {
     taskCache = {}
 }
 
+export type taskDefinition = {
+    Name: string,
+    FrameRate: number?,
+    IsServerTime: boolean?,
+}
+
+local function ramkax_registertask(ModuleScript: ModuleScript)
+    local success, result = pcall(function()
+        return require(ModuleScript)
+    end)
+
+    if success then
+        table.insert(_initCache.taskCache, result)
+    else
+        warn(("RamkaX: %s ran into an error while registering: %s"):format(ModuleScript.Name, result))
+    end
+end
+
 local RamkaX = {}
 
     RamkaX.Library = Library
     RamkaX.Resources = Resources
-    
-    function RamkaX.Heartbeat(chronoProperties)
-        
-    end
 
-    function RamkaX.CreateTask(taskDefinition)
+    RamkaX.Networking = Networking
+
+    --[[
+    [1st] Client side only, this event allows you to run code and update the world before it's drawn on a player's screen. This is useful for last‑minute adjustments such as changing object positions, updating animations, or preparing visual effects, but it should be used sparingly as the engine cannot start to render the frame until code running in this event has finished executing.
+    ]]
+    RamkaX.PreRender = Chrono.PreRender :: Chrono.ChronoConstructor
+    --[[
+    [2nd] This event is useful for modifying animation objects, such as adjusting their speed or priority. Once the PreAnimation event is complete, the engine proceeds to run these animations, updating the joint transforms which will later be used to update objects during the physics simulation.
+    ]]
+    RamkaX.PreAnimation = Chrono.PreAnimation :: Chrono.ChronoConstructor
+    --[[
+    [3rd] This event is useful for adjusting properties like velocity or forces just before they're applied as part of the simulation. The simulation then runs, potentially multiple times, as the physics solver runs at a higher frequency than other engine systems. Once this is complete, the PostSimulation event is fired.
+    ]]
+    RamkaX.PreSimulation = Chrono.PreSimulation :: Chrono.ChronoConstructor
+    --[[
+    [4th] This event is useful for making final adjustments to the outcome of the simulation. Following this phase, the engine triggers the Heartbeat event.
+    ]]
+    RamkaX.PostSimulation = Chrono.PostSimulation :: Chrono.ChronoConstructor
+
+    function RamkaX.CreateTask(taskDefinition: taskDefinition) : taskDefinition
         assert(type(taskDefinition) == "table", "Task definition must be a table.")
         assert(type(taskDefinition.Name) == "string", "Task definition must have a name.")
 
@@ -35,12 +70,10 @@ local RamkaX = {}
         return taskDefinition
     end
 
-    function RamkaX.RegisterTask(taskDefinition)
-        assert(type(taskDefinition) == "table", "Task definition must be a table.")
-        assert(type(taskDefinition.Name) == "string", "Task definition must have a name.")
-
-        table.insert(_registerCache, taskDefinition)
-        return taskDefinition
+    function RamkaX.RegisterTask(ModuleScript: ModuleScript)
+        assert(typeof(ModuleScript) == "Instance" and ModuleScript:IsA("ModuleScript"), "RegisterTask expects a ModuleScript.")
+        
+        ramkax_registertask(ModuleScript)
     end
 
     --[=[
@@ -65,7 +98,7 @@ local RamkaX = {}
             -- Init:
             local promisesStartTasks = {}
     
-            for _, ramkatask in _registerCache do
+            for _, ramkatask in _initCache.taskCache do
                 if ramkatask.RamkaInit and type(ramkatask.RamkaInit) == "function" then
                     table.insert(
                         promisesStartTasks,
@@ -81,7 +114,7 @@ local RamkaX = {}
             resolve(Promise.all(promisesStartTasks))
         end):andThen(function()
             -- Start:
-            for _, ramkatask in _registerCache do
+            for _, ramkatask in _initCache.taskCache do
                 if ramkatask.RamkaStart and type(ramkatask.RamkaStart) == "function" then
                     task.spawn(function()
                         debug.setmemorycategory("RamkaX/Start/"..ramkatask.Name)
