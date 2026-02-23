@@ -1,0 +1,32 @@
+{
+    "name": "RamkaX",
+    "tree": {
+      "$className": "DataModel",
+  
+      "ReplicatedFirst": {
+        "RamkaX": {
+          "$path": "src/Shared/RamkaX"
+        },
+        "Utility": {
+          "$path": "src/Shared/Utility"
+        },
+        "Content": {
+          "$path": "src/Shared/Content"
+        }
+      },
+  
+      "ServerScriptService": {
+        "Server": {
+          "$path": "src/Server"
+        }
+      },
+  
+      "StarterPlayer": {
+        "StarterPlayerScripts": {
+          "Client": {
+            "$path": "src/Client"
+          }
+        }
+      } 
+    }
+  }
