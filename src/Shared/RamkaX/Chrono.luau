@@ -32,34 +32,31 @@ function ChronoType.new(chronoType: ChronoTypes, props: ChronoProperties): Chron
     local self = setmetatable({
         Name = props.Name or HttpService:GenerateGUID(false),
         FrameRate = props.FrameRate or 60,
-        isServerTime = props.isServerTime or false,
 
+        _initServerTime = (game.Workspace:GetServerTimeNow() - script.Parent:GetAttribute("ServerTimeNow")),
+        _accumulatedServerTime = 0,
         _accumulatedTime = 0,
-        _lastTime = 0,
 
         Chrono = Janitor.new(),
         Signal = Signal.new(),
     }, ChronoType)
 
-    self._lastTime = self:now()
-
     local targetDt = 1 / self.FrameRate
 
     self.Chrono:Add(RunService[chronoType]:Connect(function(dt)
-        if self.FrameRate == 60 then
+        self._accumulatedServerTime += dt
+
+        if self.FrameRate >= 60 then
             self.Signal:Fire(dt, self:now())
             return
         end
 
-        local now = self:now()
-        local frameDelta = now - self._lastTime
-        self._lastTime = now
+        -- for framerates below 60
+        self._accumulatedTime += dt
 
-        self._accumulatedTime += frameDelta
-
-        while self._accumulatedTime >= targetDt do
+        if self._accumulatedTime >= targetDt then
+            self.Signal:Fire(self._accumulatedTime, self:now())
             self._accumulatedTime -= targetDt
-            self.Signal:Fire(targetDt, now)
         end
     end))
 
@@ -77,11 +74,7 @@ function ChronoType:Destroy()
 end
 
 function ChronoType:now(): number
-    if self.isServerTime then
-        return game.Workspace:GetServerTimeNow()
-    else
-        return os.clock()
-    end
+    return self._initServerTime + self._accumulatedServerTime
 end
 
 -- Chrono module
