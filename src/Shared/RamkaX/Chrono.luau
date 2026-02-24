@@ -4,11 +4,9 @@ local HttpService = game:GetService("HttpService")
 local Janitor = require(script.Parent.Parent.Library.Janitor)
 local Signal = require(script.Parent.Parent.Library.Signal)
 
--- Types
 export type ChronoProperties = {
-    Name: string,
-    FrameRate: number?,       -- target FPS
-    isServerTime: boolean?,
+    Name: string?,
+    FrameRate: number?,
 }
 
 export type ChronoClass = {
@@ -19,12 +17,11 @@ export type ChronoClass = {
     Connect: (self: ChronoClass, deltaTime: number, elapsedTime: number) -> () -> ChronoClass,
 }
 
--- The constructor type
 export type ChronoConstructor = (props: ChronoProperties) -> ChronoClass
 
 export type ChronoTypes = "Heartbeat" | "Stepped" | "RenderStepped"
 
--- ChronoType class
+-- Chrono class
 local ChronoType = {}
 ChronoType.__index = ChronoType
 
@@ -77,7 +74,7 @@ function ChronoType:now(): number
     return self._initServerTime + self._accumulatedServerTime
 end
 
--- Chrono module
+-- Chrono
 local Chrono = {}
 
 function Chrono.PreRender(props: ChronoProperties): ChronoClass

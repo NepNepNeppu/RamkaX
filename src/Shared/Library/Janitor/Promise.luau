@@ -2,7 +2,8 @@
 --!strict
 -- Partial types for Promise
 
-local Promise = require(script.Parent.Parent.Promise)
+local Packages = script.Parent.Parent
+local Promise: any = if Packages:FindFirstChild("Promise") then (require :: any)(Packages.Promise) else nil
 
 export type Status = "Started" | "Resolved" | "Rejected" | "Cancelled"
 export type ErrorKind = "ExecutionError" | "AlreadyCancelled" | "NotResolvedInTime" | "TimedOut"

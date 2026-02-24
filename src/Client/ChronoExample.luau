@@ -1,17 +1,17 @@
 local RamkaX = require(game.ReplicatedFirst.RamkaX)
 
-local ClientChronoExample = RamkaX.CreateTask {Name = "ClientChronoExample"}
+local ChronoExample = RamkaX.CreateTask {Name = "ChronoExample"}
 
-function ClientChronoExample:RamkaStart()
+function ChronoExample:RamkaStart()
     
 end
 
-function ClientChronoExample:RamkaInit()
+function ChronoExample:RamkaInit()
     --[[
-        RamkaX uses similar API as RunService events with a few benefits:
+        RamkaX uses similar API as RunService events with a couple benefits:
 
         * Custom framerate, 60 or nil will run as the standard RunService event
-        * Always have deltaTime and elapsedTime provided (elapsedTime value will be similar across all clients)
+        * Always have deltaTime and elapsedTime provided (elapsedTime value is synced across clients and server)
     ]]
 
     RamkaX.PostSimulation {
@@ -21,4 +21,4 @@ function ClientChronoExample:RamkaInit()
     end)
 end
 
-return ClientChronoExample
+return ChronoExample

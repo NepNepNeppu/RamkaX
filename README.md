@@ -12,6 +12,10 @@ RamkaX is the predecessor to Ramka. Providing proper typechecking, simplified so
 
 Basic Rojo Usage:
 
-RamkaX comes with a ```Library``` folder and a ```Resources``` folder. 
-Library is a Utility library for RamkaX prerequisites or for any modules you'd like to transfer between projects. 
-Resources is basic storage used to store your own Shared Server & Client modules.
+RamkaX comes with a ```Library``` folder and a ```Resources``` folder.\
+Library is a Utility library for RamkaX prerequisites or for any modules you'd like to transfer between projects.\
+Resources is basic storage used to store your own Shared Server & Client modules.\
+
+Few things of note:
+
+RamkaX Tasks can require each other and not cause registering order issues, but RamkaX does not prevent cyclic require paths
