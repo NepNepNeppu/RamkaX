@@ -48,7 +48,6 @@ function ChronoType.new(chronoType: ChronoTypes, props: ChronoProperties): Chron
             return
         end
 
-        -- for framerates below 60
         self._accumulatedTime += dt
 
         if self._accumulatedTime >= targetDt then
