@@ -7,6 +7,7 @@ local BasicTask = RamkaX.CreateTask {
     Name = "BasicTask",
 
     SimpleVariable = "Hello, world!",
+    Hi = true,
 }
 
 --[[
