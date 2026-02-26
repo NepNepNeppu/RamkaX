@@ -6,21 +6,20 @@ local Chrono = require(script.Chrono)
 local NetEvent = require(script.NetEvent)
 local NetFunction = require(script.NetFunction)
 
+local Signal = require(Library.Signal)
 local Promise = require(Library.Promise)
 
 -- RamkaX internal definitions
 local _initCache = {
     started = false,
     completed = false,
-    onComplete = Instance.new("BindableEvent"),
+    onComplete = Signal.new(),
     preregisteredTasks = {},
     taskCache = {}
 }
 
 export type taskDefinition = {
     Name: string,
-    FrameRate: number?,
-    IsServerTime: boolean?,
 }
 
 local function ramkax_registertask(ModuleScript: ModuleScript)
@@ -29,6 +28,7 @@ local function ramkax_registertask(ModuleScript: ModuleScript)
     end)
 
     if success then
+        -- _initCache.preregisteredTasks[ModuleScript.Name] = result
         table.insert(_initCache.taskCache, result)
     else
         warn(("RamkaX: %s ran into an error while registering: %s"):format(ModuleScript.Name, result))
@@ -41,6 +41,19 @@ local RamkaX = {}
     RamkaX.Client = game.StarterPlayer.StarterPlayerScripts.Client
     -- Quick access to server folder
     RamkaX.Server = game.ServerScriptService:FindFirstChild("Server")
+
+    RamkaX.DebugPoint = function(vect3, lifetime, size)
+        local p = Instance.new("Part")
+        p.Size = Vector3.one * (size or .2)
+        p.Anchored = true
+        p.CanCollide = false
+        p.CastShadow = false
+        p.Transparency = .5
+        p.Position = vect3
+        p.Shape = Enum.PartType.Ball
+        p.Parent = game.Workspace
+        game:GetService("Debris"):AddItem(p, lifetime or .2)
+    end
 
     -- Library is prerequisite utility modules for RamkaX
     RamkaX.Library = Library
@@ -82,19 +95,21 @@ local RamkaX = {}
         assert(type(taskDefinition) == "table", "Task definition must be a table.")
         assert(type(taskDefinition.Name) == "string", "Task definition must have a name.")
 
-        local hasTask = table.find(_initCache.preregisteredTasks, taskDefinition)
-        if hasTask then
-            return _initCache.preregisteredTasks[hasTask]
+        if _initCache.preregisteredTasks[taskDefinition.Name] then
+            return _initCache.preregisteredTasks[taskDefinition.Name]
         end
 
-        table.insert(_initCache.preregisteredTasks, taskDefinition)
-        return taskDefinition
+        _initCache.preregisteredTasks[taskDefinition.Name] = taskDefinition
+        return _initCache.preregisteredTasks[taskDefinition.Name]
+    end
+
+    function RamkaX.GetTask(taskName)
+        return _initCache.preregisteredTasks[taskName]
     end
 
     -- Register the task into RamkaX initialization. Can Yield.
     function RamkaX.RegisterTask(ModuleScript: ModuleScript)
         assert(typeof(ModuleScript) == "Instance" and ModuleScript:IsA("ModuleScript"), "RegisterTask expects a ModuleScript.")
-        print(ModuleScript)
 
         ramkax_registertask(ModuleScript)
     end
@@ -120,6 +135,8 @@ local RamkaX = {}
         _initCache.started = true
 
         debug.setmemorycategory("RamkaX")
+
+        -- table.freeze(_initCache.preregisteredTasks)
 
         return Promise.new(function(resolve)
             -- Init:
@@ -174,7 +191,9 @@ local RamkaX = {}
         if _initCache.completed then
             return Promise.resolve()
         else
-            return Promise.fromEvent(_initCache.onComplete.Event)
+            return Promise.try(function()
+                _initCache.onComplete:Wait()
+            end)
         end
     end
     
