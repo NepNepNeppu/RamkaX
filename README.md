@@ -8,11 +8,11 @@ The example source code has been built with Rojo.
 Documentation can be found inside source code examples.
 ```
 
-RamkaX is the predecessor to Ramka. Providing proper typechecking, simplified source code, and a great foundation to start a new project.
+RamkaX is the successor to Ramka. Providing proper typechecking, simplified source code, and a great foundation to start a new project.
 
 RamkaX comes with a ```Library``` folder and a ```Resources``` folder.
-* Library is a Utility library for RamkaX prerequisites or for any modules you'd like to transfer between projects.
-* Resources is basic storage used to store your own Shared Server & Client modules.
+* Library is used as a Shared storage for ModuleScripts.
+* Resources is required by RamkaX but is open to access for normal development.
 
 Couple things of note:
 

@@ -1,13 +1,14 @@
-local Library = script.Parent.Library
-local Resources = script.Parent.Resources
+local Common = game.ReplicatedFirst.Common
+local Library = Common.Library
+local Resources = Common.Resources
 
 local Chrono = require(script.Chrono)
 
 local NetEvent = require(script.NetEvent)
 local NetFunction = require(script.NetFunction)
 
-local Signal = require(Library.Signal)
-local Promise = require(Library.Promise)
+local Signal = require(Resources.Signal)
+local Promise = require(Resources.Promise)
 
 -- RamkaX internal definitions
 local _initCache = {
@@ -55,10 +56,10 @@ local RamkaX = {}
         game:GetService("Debris"):AddItem(p, lifetime or .2)
     end
 
-    -- Library is prerequisite utility modules for RamkaX
-    RamkaX.Library = Library
-    -- Quick access to shared resources for custom utility modules
-    RamkaX.Resources = Resources
+    RamkaX.Common = Common
+    RamkaX.Library = Library -- Built in Storage
+    RamkaX.Resources = Resources -- Built into Ramka
+
     -- RemoteEvent class for networking communication
     RamkaX.Event = NetEvent
     -- RemoteFunction class for networking communication

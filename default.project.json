@@ -7,11 +7,8 @@
         "RamkaX": {
           "$path": "src/Shared/RamkaX"
         },
-        "Library": {
-          "$path": "src/Shared/Library"
-        },
-        "Resources": {
-          "$path": "src/Shared/Resources"
+        "Common": {
+          "$path": "src/Shared/Common"
         }
       },
   

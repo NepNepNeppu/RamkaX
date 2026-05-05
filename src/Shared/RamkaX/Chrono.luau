@@ -1,8 +1,11 @@
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 
-local Janitor = require(script.Parent.Parent.Library.Janitor)
-local Signal = require(script.Parent.Parent.Library.Signal)
+local Common = game.ReplicatedFirst.Common
+local Resources = Common.Resources
+
+local Janitor = require(Resources.Janitor)
+local Signal = require(Resources.Signal)
 
 export type ChronoProperties = {
     Name: string?,
