@@ -1,20 +1,14 @@
 # RamkaX
 
 ```
-RamkaX is a framework based on Knit by Sleitnick.
-
-The example source code has been built with Rojo.
-
-Documentation can be found inside source code examples.
+RamkaX is a framework based on Knit by Sleitnick. Documentation is spares, but examples can be found in the source code.
 ```
 
-RamkaX is the successor to Ramka. Providing proper typechecking, simplified source code, and a great foundation to start a new project.
+RamkaX is the successor to Ramka. Providing imrpoved typechecking, simplified source code, simple built-in networking, and a great foundation to start a new project.
 
-RamkaX comes with a ```Library``` folder and a ```Resources``` folder.
-* Library is used as a Shared storage for ModuleScripts.
-* Resources is required by RamkaX but is open to access for normal development.
+RamkaX comes with a ```Common``` folder for shared Resources in ReplicatedFirst.
+* Resources is required for the functionality of some RamkaX features.
 
 Couple things of note:
-
-* RamkaX Tasks can require each other and not cause registering order issues, but RamkaX does not prevent cyclic require paths
 * RamkaX has similar intellisense shortcomings as Knit because it is based Knit's code structure
+* GetTask is a shorthand for requiring another RamkaX Task, however it does not provide intellisense
