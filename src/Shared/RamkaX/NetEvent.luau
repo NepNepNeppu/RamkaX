@@ -1,3 +1,5 @@
+-- TODO: Schemas or built-in buffer networking?
+
 local IsClient = game:GetService("RunService"):IsClient()
 
 local function addinstance(instance: string, name: string, parent: Instance)
@@ -42,41 +44,41 @@ function NetEvent.new(remoteEventName: string)
     local signal : RemoteEvent = createNew(remoteEventName, "RemoteEvent")
     
     local self = setmetatable({
-        Signal = signal,
+        RemoteEvent = signal,
     }, NetEvent)
 
     return self
 end
 
 -- Shorthand for NetEvent.new(remoteEventName):Connect(fn)
-function NetEvent.OnSignal(remoteSignalName: string, fn : (any) -> ()) : (typeof(NetEvent.new()), RBXScriptConnection)
-    local signal = NetEvent.new(remoteSignalName)
-    return signal, signal:Connect(fn)
+function NetEvent.OnEvent(remoteEventName: string, fn : (any) -> ()) : RBXScriptConnection
+    local signal = NetEvent.new(remoteEventName)
+    return signal:Connect(fn)
 end
 
 -- Shorthand for RemoteEvent.OnServerEvent or RemoteEvent.OnClientEvent
 function NetEvent:Connect(fn : (any) -> ()) : RBXScriptConnection
     if IsClient then
-        return self.Signal.OnClientEvent:Connect(fn)
+        return self.RemoteEvent.OnClientEvent:Connect(fn)
     else
-        return self.Signal.OnServerEvent:Connect(fn)
+        return self.RemoteEvent.OnServerEvent:Connect(fn)
     end
 end
 
 if IsClient then
     -- (Client) FireServer
     function NetEvent:Send(...)
-        self.Signal:FireServer(...)
+        self.RemoteEvent:FireServer(...)
     end
 else
     -- (Server) FireClient
     function NetEvent:Send(player: Player, ...)
-        self.Signal:FireClient(player, ...)
+        self.RemoteEvent:FireClient(player, ...)
     end
 
     -- (Server) FireAllClients
     function NetEvent:SendAll(...)
-        self.Signal:FireAllClients(...)
+        self.RemoteEvent:FireAllClients(...)
     end
 end
 

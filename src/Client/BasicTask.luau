@@ -1,19 +1,16 @@
 local RamkaX = require(game.ReplicatedFirst.RamkaX)
 
--- RamkaX can require tasks out of order and not cause register ordering issues.
+-- Other Tasks can be required like a normal.
 local ChronoExample = require(script.Parent.ChronoExample)
 
 local BasicTask = RamkaX.CreateTask {
     Name = "BasicTask",
 
     SimpleVariable = "Hello, world!",
-    Hi = true,
 }
 
 --[[
-Yielding code inside will not stop other tasks from starting.
-
-RamkaStart follows the completion of RamkaInit
+Follows after all RamkaInit finish and will not yield succeeding code.
 ]]
 function BasicTask:RamkaStart()
     print(self.SimpleVariable)
@@ -21,12 +18,11 @@ function BasicTask:RamkaStart()
 end
 
 --[[
-RamkaInit will yield the initialization process of RamkaX.
-
-RamkaInit runs first in the RamkaX pipeline.
+RamkaInit will run first in the bootstrapper and can yield succeding succeeding code.
 ]]
 function BasicTask:RamkaInit()
-    
+    -- You can reference methods from other Tasks
+    ChronoExample:ExampleRequireFunction()
 end
 
 return BasicTask

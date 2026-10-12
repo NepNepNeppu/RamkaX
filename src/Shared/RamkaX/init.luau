@@ -1,14 +1,14 @@
 local Common = game.ReplicatedFirst.Common
 local Library = Common.Library
-local Resources = Common.Resources
+local Utility = Common.Utility
 
 local Chrono = require(script.Chrono)
 
 local NetEvent = require(script.NetEvent)
 local NetFunction = require(script.NetFunction)
 
-local Signal = require(Resources.Signal)
-local Promise = require(Resources.Promise)
+local Signal = require(Utility.Signal)
+local Promise = require(Utility.Promise)
 
 -- RamkaX internal definitions
 local _initCache = {
@@ -29,7 +29,6 @@ local function ramkax_registertask(ModuleScript: ModuleScript)
     end)
 
     if success then
-        -- _initCache.preregisteredTasks[ModuleScript.Name] = result
         table.insert(_initCache.taskCache, result)
     else
         warn(("RamkaX: %s ran into an error while registering: %s"):format(ModuleScript.Name, result))
@@ -38,12 +37,7 @@ end
 
 local RamkaX = {}
 
-    -- Quick access to client folder
-    RamkaX.Client = game.StarterPlayer.StarterPlayerScripts.Client
-    -- Quick access to server folder
-    RamkaX.Server = game.ServerScriptService:FindFirstChild("Server")
-
-    RamkaX.DebugPoint = function(vect3, lifetime, size)
+    RamkaX.DebugPoint = function(vect3: Vector3, lifetime: number?, size: number?): Part
         local p = Instance.new("Part")
         p.Size = Vector3.one * (size or .2)
         p.Anchored = true
@@ -54,16 +48,17 @@ local RamkaX = {}
         p.Shape = Enum.PartType.Ball
         p.Parent = game.Workspace
         game:GetService("Debris"):AddItem(p, lifetime or .2)
+        return p
     end
 
     RamkaX.Common = Common
-    RamkaX.Library = Library -- Built in Storage
-    RamkaX.Resources = Resources -- Built into Ramka
+    RamkaX.Library = Library -- Access personal library, built directly into ramka
+    RamkaX.Utility = Utility -- Ramka prerequisites & Utility modules
 
-    -- RemoteEvent class for networking communication
-    RamkaX.Event = NetEvent
-    -- RemoteFunction class for networking communication
-    RamkaX.Function = NetFunction
+    -- TODO: Implement buffer networking
+
+    RamkaX.Event = NetEvent -- RemoteEvent class for networking
+    RamkaX.Function = NetFunction -- RemoteFunction class for networking
 
     --[[
     [1st] Client side only, this event allows you to run code and update the world before it's drawn on
@@ -102,10 +97,6 @@ local RamkaX = {}
 
         _initCache.preregisteredTasks[taskDefinition.Name] = taskDefinition
         return _initCache.preregisteredTasks[taskDefinition.Name]
-    end
-
-    function RamkaX.GetTask(taskName)
-        return _initCache.preregisteredTasks[taskName]
     end
 
     -- Register the task into RamkaX initialization. Can Yield.
